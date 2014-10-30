@@ -7,139 +7,86 @@
 //
 
 import Foundation
-// http://liming.me/2014/01/16/dynamic-object-mapping-for-json/
+
 class BaseModel: NSObject {
-    var propertyNSString: NSString = "prop One"
-    var propertyNSDictionary: NSDictionary = ["a": 1, "b": 2]
-    var propertyNSArray: NSArray = ["a", "b", "c"]
-    var propertyArray = [1, 2, 3]
-    var propertyDict = ["A":1, "B":2, "C":3]
-    var propertyInt = 5
-    var propertyString = "wwww"
-    var propertyBool = true
-    var propertyFloat = 0.5
-    
-    override init() {
-        super.init()
+    lazy private var __properties: [String: AnyObject] = {
+        return self.getPropertiesFromClass(self.dynamicType)
+    }()
+
+    func properties() -> [String: AnyObject] {
+        var properties: [String: AnyObject] = Dictionary()
+        for (key, value) in self.__properties {
+            if let value: AnyObject = self.valueForKey(key) {
+                properties[key] = value
+            } else {
+                properties[key] = ""
+            }
+        }
+        return properties
     }
     
-    init(jsonData : [ String : AnyObject ]) {
-        super.init()
-        setAttributes(jsonData)
-//        NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: getSetterAttributeName(""), userInfo: nil, repeats: false)
+    // MARK: NSCoding protocol
+    
+    func encodeWithCoder(aCoder: NSCoder!) {
+        for (key, value) in self.properties() {
+            aCoder.encodeObject(self.valueForKey(key), forKey: key)
+        }
+    }
+
+    
+    func hasProperty(propertyName: String) -> Bool {
+        if let property: AnyObject = self.__properties[propertyName] {
+            return true
+        }
+        return false
     }
     
+    private func getPropertiesFromClass(className: AnyClass) -> [String: AnyObject] {
+        var properties: [String: AnyObject] = Dictionary()
+
+//        if className.superclass()?.isSubclassOfClass(BaseModel.self) {
+//            properties += self.getPropertiesFromClass(className.superclass())
+//        }
+        properties.removeValueForKey("description")
+        var outCount: CUnsignedInt = 0;
+        var cProperties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(className, &outCount)
+        for counter in 0..<outCount {
+            let property: objc_property_t = cProperties[Int(counter)]
+            let propertyName = NSString(CString: property_getName(property), encoding: NSUTF8StringEncoding)!
+            properties[propertyName] = NSString(CString: property_getAttributes(property), encoding: NSUTF8StringEncoding)!
+        }
+        return properties
+    }
     
     
     func setAttributes(jsonData : [ String: AnyObject ]) {
-        let properties = toDictionary()
-        for propName in properties.allKeys {
-            // 取出属性名
-            let name = propName as String
-            let sel = getSetterAttributeName(name)
-            if self.respondsToSelector(sel) {
-                println(sel.description)
-                var value: AnyObject? = jsonData[name]
-                
-                // 在json中取出此属性名所对应的值，根据这个值生成一个属性类型的对象
-                if let jsonValue: AnyObject = value {
-                    // 取出属性类型名
-                    let type = properties[name] as String
-                    println("\(type) + \(name)")
-                    println(jsonValue)
-                    
-//                    let propClass = NSClassFromString(type) as NSObject.Type
-//                    let propObject = propClass()
-//                    NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: getSetterAttributeName(name), userInfo: nil, repeats: false)
-                    self.setValue(jsonValue, forKey: name)
-                    /*
-                    if jsonValue is NSDictionary {
-//                        var subObject = NSClassFromString(type)
-                        // 在子类别上执行set方法
-                        continue
-                    }
-                    if jsonValue is NSArray {
-                        if type == "NSString" || type == "NSNumber" {
-                            // 在jsonvalue上执行set方法
-                            continue
-                        }
-                        var dataArray = NSMutableArray()
-                        for dataItem in jsonValue as NSArray {
-//                          var subObject = NSClassFromString(type)
-                            var subObject = ""
-                            dataArray.addObject(subObject)
-                        }
-                        // 用数组来设置值
-                    }
-                    // 在jsonvalue上执行set方法
-                    */
-                }
-            }
-        }
-    }
-
-
-    
-    func getSetterAttributeName(attributeName: String) -> Selector{
-        // http://swifter.tips/selector/
-        // 生成setPropertyName，比如 setPropertyOne
-        let firstIndex: String.Index = advance(attributeName.startIndex, 1)
-        let capital = attributeName.substringToIndex(firstIndex).uppercaseString
-        let rest = attributeName.substringFromIndex(firstIndex)
-        let setterSelStr = String.localizedStringWithFormat("set%@%@:", capital, rest)
-        return Selector(setterSelStr)
-    }
-    
-    // http://stackoverflow.com/questions/24219179/how-do-i-serialise-nsdictionary-from-a-class-swift-implementation
-    func toDictionary() -> NSDictionary {
-        var aClass: AnyClass? = self.dynamicType
-        var propertiesCount: CUnsignedInt = 0
-        var propertiesInAClass: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(aClass, &propertiesCount)
+        let mainBundle = NSBundle.mainBundle()
+        let info =  mainBundle.infoDictionary as NSDictionary?
+        let bundleName = info!.objectForKey("CFBundleName") as NSString
         
-        var propertiesDictionary: NSMutableDictionary = NSMutableDictionary()
-        
-        for i in 0..<Int(propertiesCount) {
-            let property = propertiesInAClass[i]
-            let propName = NSString(CString: property_getName(property), encoding: NSUTF8StringEncoding)!
-            let propType = NSString(CString: property_getAttributes(property), encoding: NSUTF8StringEncoding)!
-            let propValue: AnyObject? = self.valueForKey(propName)
-            
-            let propTypeAttributes = propType.componentsSeparatedByString(",")
-            let typeAttribute = propTypeAttributes[0] as String
-            
-            if typeAttribute.hasPrefix("TB") {
-                propertiesDictionary.setValue("Bool", forKey: propName)
-            }
-            else if typeAttribute.hasPrefix("Td") {
-                propertiesDictionary.setValue("Double", forKey: propName)
-            }
-            else if typeAttribute.hasPrefix("Tf") {
-                propertiesDictionary.setValue("Float", forKey: propName)
-            }
-            else if typeAttribute.hasPrefix("Tl") {
-                propertiesDictionary.setValue("Long", forKey: propName)
-            }
-            else if typeAttribute.hasPrefix("T@") {
-                switch(propValue) {
-                case let stringValue as String:
-                    propertiesDictionary.setValue("NSString", forKey: propName)
-                case let dateValue as NSDate:
-                    propertiesDictionary.setValue("NSDate", forKey: propName)
-                case let dataValue as NSData:
-                    propertiesDictionary.setValue("NSData", forKey: propName)
-                case let arrayValue as Array<AnyObject>:
-                    propertiesDictionary.setValue("NSArray", forKey: propName)
-                case let dictValue as Dictionary<String, AnyObject>:
-                    propertiesDictionary.setValue("NSDictionary", forKey: propName)
-                default:
-                    propertiesDictionary.setValue("", forKey: propName)
+        for (key, value) in jsonData {
+            autoreleasepool({
+                if self.hasProperty(key) {
+                    if let modelClass = NSClassFromString("\(bundleName).\(key)") as? NSObject.Type {
+                        if value is [[String: AnyObject]] {
+                            var models: [AnyObject] = Array()
+                            for values in value as [[String: AnyObject]] {
+                                let model: BaseModel = modelClass() as BaseModel
+                                model.setAttributes(values as [String: AnyObject])
+                                models.append(model)
+                            }
+                            self.setValue(models, forKey: key)
+                        } else if value is [String: AnyObject] {
+                            let model: BaseModel = modelClass() as BaseModel
+                            model.setAttributes(value as [String: AnyObject])
+                            self.setValue(model, forKey: key)
+                        }
+
+                    } else if !value.isKindOfClass(NSNull.self) {
+                        self.setValue(value, forKey: key)
+                    }
                 }
-            }
-            
-            
-//            propertiesDictionary.setObject(typeAttribute, forKey: propType)
-//            propertiesDictionary.setValue(self.valueForKey(propName), forKey: propName!)
+            })
         }
-        return propertiesDictionary
     }
 }

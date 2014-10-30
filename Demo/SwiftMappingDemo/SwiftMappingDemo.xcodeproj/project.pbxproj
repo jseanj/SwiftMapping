@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		36E606F81A029B0100714F5F /* SubBaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E606F71A029B0100714F5F /* SubBaseModel.swift */; };
+		36E606FA1A029BBA00714F5F /* ModelSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E606F91A029BBA00714F5F /* ModelSerializer.swift */; };
 		773CC1251A00835E00F37F04 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 773CC1241A00835E00F37F04 /* AppDelegate.swift */; };
 		773CC1271A00835E00F37F04 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 773CC1261A00835E00F37F04 /* ViewController.swift */; };
 		773CC12A1A00835E00F37F04 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 773CC1281A00835E00F37F04 /* Main.storyboard */; };
@@ -27,6 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		36E606F71A029B0100714F5F /* SubBaseModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubBaseModel.swift; sourceTree = "<group>"; };
+		36E606F91A029BBA00714F5F /* ModelSerializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelSerializer.swift; sourceTree = "<group>"; };
 		773CC11F1A00835E00F37F04 /* SwiftMappingDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftMappingDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		773CC1231A00835E00F37F04 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		773CC1241A00835E00F37F04 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -82,6 +86,7 @@
 				773CC1441A0083FB00F37F04 /* SwiftMapping */,
 				773CC1241A00835E00F37F04 /* AppDelegate.swift */,
 				773CC1261A00835E00F37F04 /* ViewController.swift */,
+				36E606F71A029B0100714F5F /* SubBaseModel.swift */,
 				773CC1281A00835E00F37F04 /* Main.storyboard */,
 				773CC12B1A00835E00F37F04 /* Images.xcassets */,
 				773CC12D1A00835E00F37F04 /* LaunchScreen.xib */,
@@ -119,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				773CC1451A00841E00F37F04 /* BaseModel.swift */,
+				36E606F91A029BBA00714F5F /* ModelSerializer.swift */,
 			);
 			path = SwiftMapping;
 			sourceTree = "<group>";
@@ -225,7 +231,9 @@
 			files = (
 				773CC1461A00841E00F37F04 /* BaseModel.swift in Sources */,
 				773CC1271A00835E00F37F04 /* ViewController.swift in Sources */,
+				36E606FA1A029BBA00714F5F /* ModelSerializer.swift in Sources */,
 				773CC1251A00835E00F37F04 /* AppDelegate.swift in Sources */,
+				36E606F81A029B0100714F5F /* SubBaseModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +425,7 @@
 				773CC1401A00835E00F37F04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		773CC1411A00835E00F37F04 /* Build configuration list for PBXNativeTarget "SwiftMappingDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -425,6 +434,7 @@
 				773CC1431A00835E00F37F04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
