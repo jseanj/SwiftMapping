@@ -13,8 +13,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        let testModel = BaseModel().toDictionary()
-        println(testModel)
+        let testModel = BaseModel(jsonData: ["propertyNSString": "test"])
+        println(testModel.toDictionary())
+        let mainBundle = NSBundle.mainBundle()
+        let info =  mainBundle.infoDictionary as NSDictionary?
+        let appName = info!.objectForKey("CFBundleName") as NSString
+        println(appName)
+        println(testModel.propertyNSString)
     }
 
     override func didReceiveMemoryWarning() {
